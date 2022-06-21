@@ -79,7 +79,7 @@ services:
       - "traefik.docker.network=proxy"
       - "traefik.http.routers.filebrowser.rule=Host(`${FILEBROWSER_HOST_NAME}`)"
       - "traefik.http.routers.filebrowser.tls=true"
-      # - "traefik.http.routers.portainer.service=filebrowser"
+      # - "traefik.http.routers.filebrowser.service=filebrowser"
       # - "traefik.http.services.filebrowser.loadbalancer.server.port=8080"
     networks:
       - proxy
