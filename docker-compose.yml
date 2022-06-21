@@ -1,0 +1,95 @@
+version: "3.3"
+
+services:
+
+  traefik:
+    image: "traefik:v2.7"
+    container_name: ${APP_NAME:?traefik}
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      # Web
+      - 80:80
+      - 443:443
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Map the static configuration into the container
+      - ${APP_ROOT}/config/static.yml:/etc/traefik/traefik.yml:ro
+      # Map the dynamic configuration into the container
+      - ${APP_ROOT}/config/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      # Map the certificats into the container
+      - ${APP_ROOT}/certs:/etc/certs:ro
+    networks:
+      - proxy
+
+  whoami:
+    image: "traefik/whoami"
+    container_name: ${APP_NAME:?traefik}-whoami
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.whoami.rule=Host(`${WHOAMI_HOST_NAME}`)"
+      - "traefik.http.routers.whoami.tls=true"
+      # If port is different than 80, use the following service:
+      # - "traefik.http.services.<service_name>.loadbalancer.server.port=<port>"
+    networks:
+      - proxy
+    depends_on:
+      - traefik
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: ${APP_NAME:?traefik}-portainer
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.portainer.rule=Host(`${PORTAINER_HOST_NAME}`)"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.service=portainer"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+    networks:
+      - proxy
+    depends_on:
+      - traefik
+
+  filebrowser:
+    image: filebrowser/filebrowser
+    container_name: ${APP_NAME:?traefik}-filebrowser
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    user: "${UID}:${GID}"
+    volumes:
+      - ${FILEBROWSER_ROOT}:/srv
+      - ${APP_ROOT}/data/filebrowser/filebrowser.db:/database.db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.filebrowser.rule=Host(`${FILEBROWSER_HOST_NAME}`)"
+      - "traefik.http.routers.filebrowser.tls=true"
+      # - "traefik.http.routers.portainer.service=filebrowser"
+      # - "traefik.http.services.filebrowser.loadbalancer.server.port=8080"
+    networks:
+      - proxy
+    depends_on:
+      - traefik
+
+volumes:
+  portainer_data:
+    name: portainer_data
+
+networks:
+  proxy:
+    external: true
