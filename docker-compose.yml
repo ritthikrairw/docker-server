@@ -4,7 +4,7 @@ services:
 
   traefik:
     image: "traefik:v2.7"
-    container_name: ${APP_NAME:?traefik}
+    container_name: ${APP_NAME:?docker-server}-traefik
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -26,7 +26,7 @@ services:
 
   whoami:
     image: "traefik/whoami"
-    container_name: ${APP_NAME:?traefik}-whoami
+    container_name: ${APP_NAME:?docker-server}-whoami
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -44,7 +44,7 @@ services:
 
   portainer:
     image: portainer/portainer-ce:latest
-    container_name: ${APP_NAME:?traefik}-portainer
+    container_name: ${APP_NAME:?docker-server}-portainer
     restart: always
     security_opt:
       - no-new-privileges:true
@@ -66,7 +66,7 @@ services:
 
   filebrowser:
     image: filebrowser/filebrowser
-    container_name: ${APP_NAME:?traefik}-filebrowser
+    container_name: ${APP_NAME:?docker-server}-filebrowser
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
