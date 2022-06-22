@@ -2,32 +2,9 @@ http:
   routers:
     traefik:
       service: "api@internal"
-      middlewares:
-        - "simpleAuth"
-      rule: "Host(`traefik.docker.localhost`)"
-      tls:
-        domains:
-          - main: "docker.localhost"
-            sans:
-              - "*.docker.localhost"
-          - main: "domain.local"
-            sans:
-              - "*.domain.local"
+      rule: "Host(`traefik.ritthikrai.com`)"
   middlewares:
     secureHeaders:
-      headers:
-        sslRedirect: true
-        forceSTSHeader: true
-        stsIncludeSubdomains: true
-        stsPreload: true
-        stsSeconds: 31536000
-    simpleAuth:
-      basicAuth:
-        removeHeader: true
-        users:
-          - "admin:$2y$05$4PEg4oTrAfA1UcLY59u6luQ.GmAt2O1DArx6GPqvD1BXDBIfiIuYy"
-
-tls:
-  certificates:
-    - certFile: "/etc/certs/local-cert.pem"
-      keyFile: "/etc/certs/local-key.pem"
+      redirectScheme:
+        scheme: https
+        permanent: true
