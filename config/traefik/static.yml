@@ -25,6 +25,11 @@ log:
 entryPoints:
   web:
     address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: websecure
 
   websecure:
     address: :443
@@ -32,15 +37,4 @@ entryPoints:
       middlewares:
         - secureHeaders@file
       tls: {}
-
-certificatesResolvers:
-  myresolver:
-    acme:
-      dnsChallenge:
-        provider: cloudflare
-        delayBeforeCheck: 0
-        resolvers:
-          - "1.1.1.1:53"
-          - "8.8.8.8:53"
-      email: dev.ritthikrai.rw@gmail.com
-      storage: "/acme.json"
+    
