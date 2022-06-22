@@ -18,13 +18,10 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      # Map the static configuration into the container
       - ${APP_ROOT}/config/static.yml:/etc/traefik/traefik.yml:ro
-      # Map the dynamic configuration into the container
       - ${APP_ROOT}/config/dynamic.yml:/etc/traefik/dynamic.yml:ro
-      # Map the certificats into the container
-      - ${APP_ROOT}/certs:/etc/certs:ro
       - ${APP_ROOT}/certs/acme.json:/acme.json
+      - ${APP_ROOT}/data/traefik/access.log:/logs/access.log
     networks:
       - proxy
 
