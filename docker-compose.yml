@@ -18,8 +18,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${APP_ROOT}/config/static.yml:/etc/traefik/traefik.yml:ro
-      - ${APP_ROOT}/config/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ${APP_ROOT}/config/traefik/static.yml:/etc/traefik/traefik.yml:ro
+      - ${APP_ROOT}/config/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
       - ${APP_ROOT}/certs/acme.json:/acme.json
       - ${APP_ROOT}/data/traefik/access.log:/logs/access.log
     networks:
@@ -92,6 +92,74 @@ services:
       - proxy
     depends_on:
       - traefik
+
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: ${APP_NAME:?docker-server}-autoheal
+    restart: always
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+      - AUTOHEAL_INTERVAL=5 # check every 5 seconds
+      - AUTOHEAL_START_PERIOD=0 # wait 0 seconds before first health check
+      - AUTOHEAL_DEFAULT_STOP_TIMEOUT=10 # Docker waits max 10 seconds (the Docker default) for a container to stop before killing during restarts (container overridable via label, see below)
+      - DOCKER_SOCK=/var/run/docker.sock # Unix socket for curl requests to Docker API
+      - CURL_TIMEOUT=30 # --max-time seconds for curl requests to Docker API
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: ${APP_NAME:?docker-server}-dozzle
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.dozzle.rule=Host(`${DOZZLE_HOST_NAME}`)"
+      - "traefik.http.routers.dozzle.entrypoints=websecure"
+      - "traefik.http.routers.dozzle.tls=true"
+      - "traefik.http.routers.dozzle.tls.certresolver=myresolver"
+      - "traefik.http.routers.dozzle.service=dozzle"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+    networks:
+      - proxy
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: ${APP_NAME:?docker-server}-watchtower
+    environment:
+      - WATCHTOWER_NOTIFICATIONS=slack
+      - WATCHTOWER_NOTIFICATION_SLACK_HOOK_URL=${SLACK_HOOK_URL}
+      - WATCHTOWER_NOTIFICATION_SLACK_IDENTIFIER=${SLACK_IDENTIFIER}
+      - WATCHTOWER_NOTIFICATION_SLACK_CHANNEL=${SLACK_CHANNEL}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime:ro
+
+  duplicati:
+    image: lscr.io/linuxserver/duplicati:latest
+    container_name: ${APP_NAME:?docker-server}-duplicati
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Bangkok
+      - CLI_ARGS= #optional
+    volumes:
+      - ${APP_ROOT}/config/duplicati:/config
+      - ${APP_ROOT}/backups:/backups
+      - ${SOURCE_PATH}:/source
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.duplicati.rule=Host(`${DOZZLE_HOST_NAME}`)"
+      - "traefik.http.routers.duplicati.entrypoints=websecure"
+      - "traefik.http.routers.duplicati.tls=true"
+      - "traefik.http.routers.duplicati.tls.certresolver=myresolver"
+      - "traefik.http.routers.duplicati.service=duplicati"
+      - "traefik.http.services.duplicati.loadbalancer.server.port=8200"
+    networks:
+      - proxy
 
 volumes:
   portainer_data:
