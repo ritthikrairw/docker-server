@@ -3,7 +3,7 @@ version: "3.3"
 services:
 
   traefik:
-    image: "traefik:v2.7"
+    image: "traefik:v2.8"
     container_name: ${APP_NAME:?docker-server}-traefik
     restart: unless-stopped
     security_opt:
@@ -26,7 +26,7 @@ services:
       - proxy
 
   whoami:
-    image: "traefik/whoami"
+    image: "traefik/whoami:v1.8.1"
     container_name: ${APP_NAME:?docker-server}-whoami
     restart: unless-stopped
     security_opt:
@@ -46,7 +46,7 @@ services:
       - traefik
 
   portainer:
-    image: portainer/portainer-ce:latest
+    image: portainer/portainer-ce:2.13.1-alpine
     container_name: ${APP_NAME:?docker-server}-portainer
     restart: always
     security_opt:
@@ -70,7 +70,7 @@ services:
       - traefik
 
   filebrowser:
-    image: filebrowser/filebrowser
+    image: filebrowser/filebrowser:v2.22.1
     container_name: ${APP_NAME:?docker-server}-filebrowser
     restart: unless-stopped
     security_opt:
@@ -108,7 +108,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   dozzle:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:v3.12.6
     container_name: ${APP_NAME:?docker-server}-dozzle
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -125,7 +125,7 @@ services:
       - proxy
 
   watchtower:
-    image: containrrr/watchtower:latest
+    image: containrrr/watchtower:1.4.0
     container_name: ${APP_NAME:?docker-server}-watchtower
     environment:
       - WATCHTOWER_NOTIFICATIONS=slack
@@ -137,7 +137,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
   duplicati:
-    image: lscr.io/linuxserver/duplicati:latest
+    image: linuxserver/duplicati:2.0.6
     container_name: ${APP_NAME:?docker-server}-duplicati
     restart: unless-stopped
     environment:
@@ -148,11 +148,12 @@ services:
     volumes:
       - ${APP_ROOT}/config/duplicati:/config
       - ${APP_ROOT}/backups:/backups
-      - ${SOURCE_PATH}:/source
+      - ${SOURCE_PATH}:/sources:ro
+      - ${VOLUME_PATH}:/volume-sources-:ro
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
-      - "traefik.http.routers.duplicati.rule=Host(`${DOZZLE_HOST_NAME}`)"
+      - "traefik.http.routers.duplicati.rule=Host(`${DUPLICATI_HOST_NAME}`)"
       - "traefik.http.routers.duplicati.entrypoints=websecure"
       - "traefik.http.routers.duplicati.tls=true"
       - "traefik.http.routers.duplicati.tls.certresolver=myresolver"
