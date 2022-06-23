@@ -2,5 +2,5 @@
 .env
 .env.*
 !.env.example
-data/homer
-!data/homer/.gitkeep
+data/heimdall/*
+!data/heimdall/.gitkeep

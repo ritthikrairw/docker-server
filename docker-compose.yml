@@ -119,20 +119,24 @@ services:
       - proxy
 
 
-  homer:
-    image: b4bz/homer:latest
-    container_name: ${APP_NAME:?docker-server}-homer
-    restart: always
+  heimdall:
+    image: linuxserver/heimdall:latest
+    container_name: ${APP_NAME:?docker-server}-heimdall
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Bangkok
     volumes:
-      - ${APP_ROOT}/data/homer/:/www/assets
+      - ${APP_ROOT}/data/heimdall/:/config
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
-      - "traefik.http.routers.homer.rule=Host(`${HOMER_HOST_NAME}`)"
-      - "traefik.http.routers.homer.entrypoints=websecure"
-      - "traefik.http.routers.homer.tls=true"
-      - "traefik.http.routers.homer.service=homer"
-      - "traefik.http.services.homer.loadbalancer.server.port=8080"
+      - "traefik.http.routers.heimdall.rule=Host(`${HEIMDALL_HOST_NAME}`)"
+      - "traefik.http.routers.heimdall.entrypoints=websecure"
+      - "traefik.http.routers.heimdall.tls=true"
+      - "traefik.http.routers.heimdall.service=heimdall"
+      - "traefik.http.services.heimdall.loadbalancer.server.port=80"
     networks:
       - proxy
 
