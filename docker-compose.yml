@@ -104,6 +104,7 @@ services:
   dozzle:
     image: amir20/dozzle:v3.12.6
     container_name: ${APP_NAME:?docker-server}-dozzle
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
@@ -119,7 +120,7 @@ services:
 
 volumes:
   portainer_data:
-    name: portainer-data
+    name: portainer_data
 
 networks:
   proxy:
