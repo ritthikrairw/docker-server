@@ -5,7 +5,7 @@ services:
   traefik:
     image: "traefik:v2.8"
     container_name: ${APP_NAME:?docker-server}-traefik
-    restart: unless-stopped
+    restart: always
     security_opt:
       - no-new-privileges:true
     environment:
@@ -72,7 +72,7 @@ services:
   filebrowser:
     image: filebrowser/filebrowser:v2.22.1
     container_name: ${APP_NAME:?docker-server}-filebrowser
-    restart: unless-stopped
+    restart: always
     security_opt:
       - no-new-privileges:true
     user: "${UID}:${GID}"
@@ -110,7 +110,7 @@ services:
   dozzle:
     image: amir20/dozzle:v3.12.6
     container_name: ${APP_NAME:?docker-server}-dozzle
-    restart: unless-stopped
+    restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
@@ -128,6 +128,7 @@ services:
   watchtower:
     image: containrrr/watchtower:1.4.0
     container_name: ${APP_NAME:?docker-server}-watchtower
+    restart: always
     environment:
       - WATCHTOWER_NOTIFICATIONS=slack
       - WATCHTOWER_NOTIFICATION_SLACK_HOOK_URL=${SLACK_HOOK_URL}
@@ -140,7 +141,7 @@ services:
   duplicati:
     image: linuxserver/duplicati:2.0.6
     container_name: ${APP_NAME:?docker-server}-duplicati
-    restart: unless-stopped
+    restart: always
     environment:
       - PUID=1000
       - PGID=1000
