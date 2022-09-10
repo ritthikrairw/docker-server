@@ -3,7 +3,7 @@ version: "3.3"
 services:
 
   traefik:
-    image: "traefik:v2.8"
+    image: "traefik:v2.8.4"
     container_name: ${APP_NAME:?docker-server}-traefik
     restart: unless-stopped
     security_opt:
@@ -46,7 +46,7 @@ services:
       - traefik
 
   portainer:
-    image: portainer/portainer-ce:2.13.1-alpine
+    image: portainer/portainer-ce:2.15.0-alpine
     container_name: ${APP_NAME:?docker-server}-portainer
     restart: always
     security_opt:
@@ -70,7 +70,7 @@ services:
       - traefik
 
   filebrowser:
-    image: filebrowser/filebrowser:v2.22.1
+    image: filebrowser/filebrowser:v2.22.4
     container_name: ${APP_NAME:?docker-server}-filebrowser
     restart: unless-stopped
     security_opt:
@@ -108,7 +108,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   dozzle:
-    image: amir20/dozzle:v3.12.6
+    image: amir20/dozzle:v4.0.2
     container_name: ${APP_NAME:?docker-server}-dozzle
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
