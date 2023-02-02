@@ -3,7 +3,7 @@ version: "3.3"
 services:
 
   traefik:
-    image: "traefik:v2.8.4"
+    image: traefik:latest
     container_name: ${APP_NAME:?docker-server}-traefik
     restart: always
     security_opt:
@@ -17,13 +17,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${APP_ROOT}/config/traefik/static.yml:/etc/traefik/traefik.yml:ro
       - ${APP_ROOT}/config/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
-      - ${APP_ROOT}/certs:/etc/certs:ro
+      - ${APP_ROOT}/cert:/etc/cert:ro
       - ${APP_ROOT}/data/traefik/access.log:/logs/access.log
     networks:
       - proxy
 
   whoami:
-    image: "traefik/whoami:v1.8.1"
+    image: traefik/whoami:latest
     container_name: ${APP_NAME:?docker-server}-whoami
     restart: unless-stopped
     security_opt:
@@ -42,7 +42,7 @@ services:
       - traefik
 
   portainer:
-    image: portainer/portainer-ce:2.15.0-alpine
+    image: portainer/portainer-ce:latest
     container_name: ${APP_NAME:?docker-server}-portainer
     restart: always
     security_opt:
@@ -65,7 +65,7 @@ services:
       - traefik
 
   filebrowser:
-    image: filebrowser/filebrowser:v2.22.4
+    image: filebrowser/filebrowser:latest
     container_name: ${APP_NAME:?docker-server}-filebrowser
     restart: always
     security_opt:
@@ -102,7 +102,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   dozzle:
-    image: amir20/dozzle:v4.0.2
+    image: amir20/dozzle:latest
     container_name: ${APP_NAME:?docker-server}-dozzle
     restart: always
     volumes:
@@ -117,7 +117,6 @@ services:
       - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
     networks:
       - proxy
-
 
   heimdall:
     image: linuxserver/heimdall:latest

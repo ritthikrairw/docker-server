@@ -26,5 +26,5 @@ http:
 
 tls:
   certificates:
-    - certFile: "/etc/certs/local-cert.pem"
-      keyFile: "/etc/certs/local-key.pem"
+    - certFile: "/etc/cert/certificate.pem"
+      keyFile: "/etc/cert/private.pem"

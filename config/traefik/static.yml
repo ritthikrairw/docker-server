@@ -37,4 +37,3 @@ entryPoints:
       middlewares:
         - secureHeaders@file
       tls: {}
-    
